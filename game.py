@@ -78,6 +78,68 @@ class Game:
             f"Player {2-self.turn} makes move", True, "#000000"
         )
 
+    def check_win(self):
+        for i in range(0, 3):
+            if abs(sum(self.grid_filling[i])) == 3:
+                self.start = False
+                self.middle_text = self.font_title.render(
+                    f"Player {2-(self.turn + 1) % 2} win! Press Enter to start new game.",
+                    True,
+                    "#000000",
+                )
+                self.win_lines_pos.append(((i, 0), (i, 2)))
+            if (
+                abs(
+                    self.grid_filling[0][i]
+                    + self.grid_filling[1][i]
+                    + self.grid_filling[2][i]
+                )
+                == 3
+            ):
+                self.start = False
+                self.middle_text = self.font_title.render(
+                    f"Player {2-(self.turn + 1) % 2} win! Press Enter to start new game.",
+                    True,
+                    "#000000",
+                )
+                self.win_lines_pos.append(((0, i), (2, i)))
+        if (
+            abs(
+                self.grid_filling[0][0]
+                + self.grid_filling[1][1]
+                + self.grid_filling[2][2]
+            )
+            == 3
+        ):
+            self.start = False
+            self.middle_text = self.font_title.render(
+                f"Player {2-(self.turn + 1) % 2} win! Press Enter to start new game.",
+                True,
+                "#000000",
+            )
+            self.win_lines_pos.append(((0, 0), (2, 2)))
+        if (
+            abs(
+                self.grid_filling[2][0]
+                + self.grid_filling[1][1]
+                + self.grid_filling[0][2]
+            )
+            == 3
+        ):
+            self.start = False
+            self.middle_text = self.font_title.render(
+                f"Player {2-(self.turn + 1) % 2} win! Press Enter to start new game.",
+                True,
+                "#000000",
+            )
+            self.win_lines_pos.append(((2, 0), (0, 2)))
+
+        if self.start and self.sum_of_moves == 9:
+            self.start = False
+            self.middle_text = self.font_title.render(
+                f"Draw! Press Enter to start new game.", True, "#000000"
+            )
+
     def fill_cell_if_possible(self):
         if self.selected_square_pos == (-1, -1) or not self.start:
             return
@@ -91,7 +153,7 @@ class Game:
             self.grid_filling[x][y] = -1
             self.sum_of_moves += 1
             self.turn = (self.turn + 1) % 2
-        # self.check_win()
+        self.check_win()
 
     def draw_filled_cells(self):
         for x in range(0, 3):
@@ -156,15 +218,15 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-                    # if event.key == pygame.K_RETURN and not self.start:
-                    #     self.start = True
-                    #     self.sum_of_moves = 0
-                    #     self.turn = random.randint(0, 1)
-                    #     self.win_lines_pos = []
-                    #     self.grid_filling = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-                    #     self.middle_text = self.font.render(
-                    #         f"Player {2-self.turn} makes move", True, "#000000"
-                    #     )
+                    if event.key == pygame.K_RETURN and not self.start:
+                        self.start = True
+                        self.sum_of_moves = 0
+                        self.turn = random.randint(0, 1)
+                        self.win_lines_pos = []
+                        self.grid_filling = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+                        self.middle_text = self.font.render(
+                            f"Player {2-self.turn} makes move", True, "#000000"
+                        )
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.fill_cell_if_possible()
 
@@ -193,21 +255,21 @@ class Game:
                     dest=self.white_cells_pos[self.selected_square_pos],
                 )
 
-            # if not self.start:
-            #     for pos_1, pos_2 in self.win_lines_pos:
-            #         pygame.draw.line(
-            #             surface=self.screen,
-            #             color="#00A3EE",
-            #             start_pos=(
-            #                 self.white_cells_pos[pos_1][0] + 64,
-            #                 self.white_cells_pos[pos_1][1] + 64,
-            #             ),
-            #             end_pos=(
-            #                 self.white_cells_pos[pos_2][0] + 64,
-            #                 self.white_cells_pos[pos_2][1] + 64,
-            #             ),
-            #             width=10,
-            #         )
+            if not self.start:
+                for pos_1, pos_2 in self.win_lines_pos:
+                    pygame.draw.line(
+                        surface=self.screen,
+                        color="#00A3EE",
+                        start_pos=(
+                            self.white_cells_pos[pos_1][0] + 64,
+                            self.white_cells_pos[pos_1][1] + 64,
+                        ),
+                        end_pos=(
+                            self.white_cells_pos[pos_2][0] + 64,
+                            self.white_cells_pos[pos_2][1] + 64,
+                        ),
+                        width=10,
+                    )
 
             pygame.display.update()
             self.clock.tick(20)
